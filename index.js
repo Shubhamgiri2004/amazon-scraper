@@ -7,8 +7,8 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const apiKey = process.env.SCRAPER_API_KEY;
-const baseUrl = `http://api.scraperapi.com?api_key=${apiKey}&autoparse=true`;
+// const apiKey = process.env.SCRAPER_API_KEY;
+const generateScraperUrl =(apiKey) => `http://api.scraperapi.com?api_key=${apiKey}&autoparse=true`;
 
 app.use(express.json());
 
@@ -19,10 +19,11 @@ app.get("/", (req, res) => {
 //Get product details
 app.get("/products/:productId", async (req, res) => {
   const { productId } = req.params;
+  const { api_key } = req.query;
 
   try {
     const response = await axios.get(
-      `${baseUrl}&url=http://amazon.com/dp/${productId}`
+      `${generateScraperUrl(apiKey)}&url=https://amazon.com/dp/${productId}`
     );
     res.json(response.data);
   } catch (error) {
@@ -36,7 +37,7 @@ app.get("/products/:productId/reviews", async (req, res) => {
 
   try {
     const response = await axios.get(
-      `${baseUrl}&url=http://amazon.com/product-reviews/${productId}`
+      `${generateScraperUrl(apiKey)}&url=https://amazon.com/product-reviews/${productId}`
     );
     res.json(response.data);
   } catch (error) {
@@ -52,15 +53,31 @@ app.get("/products/:productId/offers", async (req, res) => {
 
   try {
     const response = await axios.get(
-      `${baseUrl}$url=http://amazon.com/gp/offer-listing/${productId}`
+      `${generateScraperUrl(apiKey)}&url=https://amazon.com/gp/offer-listing/${productId}`
     );
     res.json(response.data);
   } catch (error) {
     res.json({
-      error: error.message,
+      error: error.message
     });
   }
 });
+
+// Search query
+app.get("/search/:searchQuery", async(req, res) =>{
+    const { searchQuery } = req.params;
+
+    try{
+        const response = await axios.get(`${generateScraperUrl(apiKey)}&url=https://amazon.com/s?k=${searchQuery}`);
+        res.json(response.data);
+    } catch(error) {
+        res.json({
+            error: error.message
+        });
+    }
+});
+
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on the port ${PORT}`);
