@@ -13,7 +13,7 @@ const generateScraperUrl =(apiKey) => `http://api.scraperapi.com?api_key=${apiKe
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send("hello from melody team");
+  res.send("Welcome to Amazon web-scraper Api");
 });
 
 //Get product details
